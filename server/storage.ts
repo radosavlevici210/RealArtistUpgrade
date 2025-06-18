@@ -1,0 +1,249 @@
+import { users, projects, aiArtists, userStats, type User, type InsertUser, type Project, type InsertProject, type AiArtist, type InsertAiArtist, type UserStats, type InsertUserStats } from "@shared/schema";
+
+export interface IStorage {
+  // User operations
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+
+  // Project operations
+  getProject(id: number): Promise<Project | undefined>;
+  getProjectsByUserId(userId: number): Promise<Project[]>;
+  createProject(project: InsertProject): Promise<Project>;
+  updateProject(id: number, updates: Partial<Project>): Promise<Project | undefined>;
+  deleteProject(id: number): Promise<boolean>;
+
+  // AI Artist operations
+  getAiArtists(): Promise<AiArtist[]>;
+  getAiArtist(id: number): Promise<AiArtist | undefined>;
+  createAiArtist(artist: InsertAiArtist): Promise<AiArtist>;
+
+  // User Stats operations
+  getUserStats(userId: number): Promise<UserStats | undefined>;
+  updateUserStats(userId: number, updates: Partial<UserStats>): Promise<UserStats | undefined>;
+}
+
+export class MemStorage implements IStorage {
+  private users: Map<number, User>;
+  private projects: Map<number, Project>;
+  private aiArtists: Map<number, AiArtist>;
+  private userStats: Map<number, UserStats>;
+  private currentUserId: number;
+  private currentProjectId: number;
+  private currentAiArtistId: number;
+
+  constructor() {
+    this.users = new Map();
+    this.projects = new Map();
+    this.aiArtists = new Map();
+    this.userStats = new Map();
+    this.currentUserId = 1;
+    this.currentProjectId = 1;
+    this.currentAiArtistId = 1;
+
+    // Initialize with default data
+    this.initializeDefaultData();
+  }
+
+  private initializeDefaultData() {
+    // Create default user
+    const defaultUser: User = {
+      id: 1,
+      username: "ervin_radosavlevici",
+      email: "admin@root-cloud.com",
+      name: "Ervin Radosavlevici",
+      profileImage: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100",
+      accountType: "pro",
+      createdAt: new Date(),
+    };
+    this.users.set(1, defaultUser);
+    this.currentUserId = 2;
+
+    // Create default AI artists
+    const defaultArtists: AiArtist[] = [
+      {
+        id: 1,
+        name: "AI Pop Vocalist",
+        description: "Versatile, clear tone",
+        voiceType: "pop",
+        avatarUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=80&h=80",
+        isActive: true,
+      },
+      {
+        id: 2,
+        name: "AI Hip-Hop Vocalist",
+        description: "Rhythmic, powerful delivery",
+        voiceType: "hip-hop",
+        avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=80&h=80",
+        isActive: true,
+      },
+      {
+        id: 3,
+        name: "AI R&B Vocalist",
+        description: "Soulful, emotional range",
+        voiceType: "rnb",
+        avatarUrl: "https://images.unsplash.com/photo-1494790108755-2616c6da2f02?ixlib=rb-4.0.3&auto=format&fit=crop&w=80&h=80",
+        isActive: true,
+      },
+    ];
+    defaultArtists.forEach(artist => this.aiArtists.set(artist.id, artist));
+    this.currentAiArtistId = 4;
+
+    // Create default user stats
+    const defaultStats: UserStats = {
+      id: 1,
+      userId: 1,
+      songsCreated: 47,
+      totalStreams: 12400,
+      royaltiesEarned: 284700, // $2,847.00 in cents
+      aiCreditsRemaining: 156,
+    };
+    this.userStats.set(1, defaultStats);
+
+    // Create sample projects
+    const sampleProjects: Project[] = [
+      {
+        id: 1,
+        userId: 1,
+        title: "Midnight Dreams",
+        lyrics: "Walking through the midnight dreams...",
+        mood: "melancholic",
+        genre: "pop",
+        tempo: 120,
+        artistVoice: "AI Pop Vocalist",
+        status: "complete",
+        currentStep: 6,
+        metadata: {},
+        createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
+        updatedAt: new Date(Date.now() - 3 * 60 * 60 * 1000),
+      },
+      {
+        id: 2,
+        userId: 1,
+        title: "Summer Vibes",
+        lyrics: "Feel the summer breeze tonight...",
+        mood: "uplifting",
+        genre: "pop",
+        tempo: 128,
+        artistVoice: "AI Pop Vocalist",
+        status: "processing",
+        currentStep: 3,
+        metadata: {},
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+        updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      },
+      {
+        id: 3,
+        userId: 1,
+        title: "Heartbreak Anthem",
+        lyrics: "When you left me standing there...",
+        mood: "melancholic",
+        genre: "rnb",
+        tempo: 90,
+        artistVoice: "AI R&B Vocalist",
+        status: "complete",
+        currentStep: 6,
+        metadata: {},
+        createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+        updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      },
+    ];
+    sampleProjects.forEach(project => this.projects.set(project.id, project));
+    this.currentProjectId = 4;
+  }
+
+  async getUser(id: number): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.username === username);
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const id = this.currentUserId++;
+    const user: User = {
+      ...insertUser,
+      id,
+      createdAt: new Date(),
+    };
+    this.users.set(id, user);
+    return user;
+  }
+
+  async getProject(id: number): Promise<Project | undefined> {
+    return this.projects.get(id);
+  }
+
+  async getProjectsByUserId(userId: number): Promise<Project[]> {
+    return Array.from(this.projects.values())
+      .filter(project => project.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async createProject(insertProject: InsertProject): Promise<Project> {
+    const id = this.currentProjectId++;
+    const now = new Date();
+    const project: Project = {
+      ...insertProject,
+      id,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.projects.set(id, project);
+    return project;
+  }
+
+  async updateProject(id: number, updates: Partial<Project>): Promise<Project | undefined> {
+    const project = this.projects.get(id);
+    if (!project) return undefined;
+
+    const updatedProject: Project = {
+      ...project,
+      ...updates,
+      updatedAt: new Date(),
+    };
+    this.projects.set(id, updatedProject);
+    return updatedProject;
+  }
+
+  async deleteProject(id: number): Promise<boolean> {
+    return this.projects.delete(id);
+  }
+
+  async getAiArtists(): Promise<AiArtist[]> {
+    return Array.from(this.aiArtists.values()).filter(artist => artist.isActive);
+  }
+
+  async getAiArtist(id: number): Promise<AiArtist | undefined> {
+    return this.aiArtists.get(id);
+  }
+
+  async createAiArtist(insertAiArtist: InsertAiArtist): Promise<AiArtist> {
+    const id = this.currentAiArtistId++;
+    const artist: AiArtist = {
+      ...insertAiArtist,
+      id,
+    };
+    this.aiArtists.set(id, artist);
+    return artist;
+  }
+
+  async getUserStats(userId: number): Promise<UserStats | undefined> {
+    return Array.from(this.userStats.values()).find(stats => stats.userId === userId);
+  }
+
+  async updateUserStats(userId: number, updates: Partial<UserStats>): Promise<UserStats | undefined> {
+    const stats = Array.from(this.userStats.values()).find(s => s.userId === userId);
+    if (!stats) return undefined;
+
+    const updatedStats: UserStats = {
+      ...stats,
+      ...updates,
+    };
+    this.userStats.set(stats.id, updatedStats);
+    return updatedStats;
+  }
+}
+
+export const storage = new MemStorage();
