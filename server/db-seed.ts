@@ -22,59 +22,53 @@ async function seed() {
     .insert(aiArtists)
     .values([
       {
-        id: 1,
         name: "AI Pop Vocalist",
         description: "Bright, catchy vocals perfect for pop hits",
         voiceType: "pop",
-        gender: "female",
         isActive: true,
       },
       {
-        id: 2,
         name: "AI Hip-Hop Artist",
         description: "Strong, rhythmic vocals with urban style",
         voiceType: "hip-hop",
-        gender: "male",
         isActive: true,
       },
       {
-        id: 3,
         name: "AI R&B Singer",
         description: "Smooth, soulful vocals with emotional depth",
         voiceType: "r&b",
-        gender: "female",
         isActive: true,
       },
       {
-        id: 4,
         name: "AI Rock Vocalist",
         description: "Powerful, energetic vocals for rock anthems",
         voiceType: "rock",
-        gender: "male",
         isActive: true,
       },
       {
-        id: 5,
         name: "AI Country Singer",
         description: "Warm, storytelling vocals with country charm",
         voiceType: "country",
-        gender: "female",
         isActive: true,
       },
     ])
     .onConflictDoNothing();
 
+  // Get the user ID from the inserted user
+  const userId = user?.id || 1;
+
   // Insert user stats
   await db
     .insert(userStats)
     .values({
-      id: 1,
-      userId: 1,
+      userId: userId,
       songsCreated: 47,
       totalStreams: 2847392,
-      totalRevenue: 12847.53,
-      aiCredits: 850,
-      subscriptionTier: "premium",
+      royaltiesEarned: 1284753, // in cents
+      aiCreditsRemaining: 850,
+      subscriptionPlan: "professional",
+      accountStatus: "active",
+      totalSpent: 9900, // in cents
     })
     .onConflictDoNothing();
 
@@ -82,22 +76,22 @@ async function seed() {
   await db
     .insert(projects)
     .values({
-      id: 1,
-      userId: 1,
+      userId: userId,
       title: "Midnight Dreams",
       lyrics: "Walking through the city lights at midnight\nDreaming of tomorrow's bright\nStars above us shining so bright\nEverything feels so right",
       mood: "dreamy",
       genre: "pop",
       tempo: 120,
-      aiArtistId: 1,
-      status: "completed",
-      scriptGenerated: true,
-      voiceGenerated: true,
-      instrumentalGenerated: true,
-      videoGenerated: true,
-      finalAudioUrl: "/audio/midnight-dreams.mp3",
-      finalVideoUrl: "/video/midnight-dreams.mp4",
-      duration: 205,
+      artistVoice: "AI Pop Vocalist",
+      status: "complete",
+      currentStep: 6,
+      audioUrl: "/audio/midnight-dreams.mp3",
+      videoUrl: "/video/midnight-dreams.mp4",
+      certificateUrl: "/certificates/midnight-dreams.pdf",
+      bundleUrl: "/bundles/midnight-dreams.zip",
+      watermarkId: "WM_MD_2025_001",
+      royaltiesEarned: 2847,
+      totalStreams: 28473,
     })
     .onConflictDoNothing();
 
