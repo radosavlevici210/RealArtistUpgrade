@@ -193,6 +193,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analytics endpoints
+  app.get("/api/analytics/dashboard", async (req, res) => {
+    try {
+      const analytics = await storage.getProjectAnalytics(1);
+      res.json(analytics);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch analytics" });
+    }
+  });
+
+  // Health check endpoint
+  app.get("/api/health", (req, res) => {
+    res.json({ 
+      status: "healthy", 
+      timestamp: new Date().toISOString(),
+      version: "1.0.0",
+      environment: process.env.NODE_ENV || "development"
+    });
+  });
+
+  // Version endpoint
+  app.get("/api/version", (req, res) => {
+    res.json({ 
+      version: "2025.1.0",
+      platform: "RealArtist AI",
+      buildDate: new Date().toISOString(),
+      features: ["ai-generation", "analytics", "security", "royalties"]
+    });
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

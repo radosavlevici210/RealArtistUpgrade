@@ -1,6 +1,6 @@
-import { users, projects, aiArtists, userStats, type User, type InsertUser, type Project, type InsertProject, type AiArtist, type InsertAiArtist, type UserStats, type InsertUserStats } from "@shared/schema";
+import { users, projects, aiArtists, userStats, royaltyTracking, securityLogs, contentProtection, type User, type Project, type AiArtist, type UserStats, type InsertProject } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -330,22 +330,41 @@ export class DatabaseStorage implements IStorage {
     return project;
   }
 
-  async updateProject(id: number, updates: Partial<Project>): Promise<Project | undefined> {
-    const [project] = await db
-      .update(projects)
-      .set(updates)
-      .where(eq(projects.id, id))
-      .returning();
-    return project || undefined;
+  async updateProject(id: number, updates: Partial<Project>): Promise<Project | null> {
+    try {
+      const [project] = await db
+        .update(projects)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(projects.id, id))
+        .returning();
+
+      return project || null;
+    } catch (error) {
+      console.error(`Error updating project ${id}:`, error);
+      throw new Error("Failed to update project");
+    }
   }
 
   async deleteProject(id: number): Promise<boolean> {
-    const result = await db.delete(projects).where(eq(projects.id, id));
-    return (result.rowCount || 0) > 0;
+    try {
+      const result = await db
+        .delete(projects)
+        .where(eq(projects.id, id));
+
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error(`Error deleting project ${id}:`, error);
+      return false;
+    }
   }
 
   async getAiArtists(): Promise<AiArtist[]> {
-    return await db.select().from(aiArtists);
+    try {
+      return await db.select().from(aiArtists).where(eq(aiArtists.isActive, true));
+    } catch (error) {
+      console.error("Error fetching AI artists:", error);
+      return [];
+    }
   }
 
   async getAiArtist(id: number): Promise<AiArtist | undefined> {
@@ -373,6 +392,43 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userStats.userId, userId))
       .returning();
     return stats || undefined;
+  }
+
+  // Production methods for analytics
+  async getProjectAnalytics(userId: number) {
+    try {
+      const userProjects = await db.select().from(projects).where(eq(projects.userId, userId));
+      const royalties = await db.select().from(royaltyTracking);
+
+      return {
+        totalProjects: userProjects.length,
+        completedProjects: userProjects.filter(p => p.status === 'complete').length,
+        totalStreams: userProjects.reduce((sum, p) => sum + (p.totalStreams || 0), 0),
+        totalRoyalties: userProjects.reduce((sum, p) => sum + (p.royaltiesEarned || 0), 0),
+        recentActivity: userProjects.sort((a, b) => 
+          new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime()
+        ).slice(0, 5)
+      };
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      return null;
+    }
+  }
+
+  // Security logging
+  async logSecurityEvent(userId: number, action: string, metadata: any = {}) {
+    try {
+      await db.insert(securityLogs).values({
+        userId,
+        action,
+        ipAddress: "127.0.0.1", // In production, get from request
+        userAgent: "RealArtist-Platform/1.0",
+        deviceFingerprint: "system",
+        metadata,
+      });
+    } catch (error) {
+      console.error("Error logging security event:", error);
+    }
   }
 }
 

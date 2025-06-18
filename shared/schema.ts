@@ -30,10 +30,11 @@ export const projects = pgTable("projects", {
   watermarkId: text("watermark_id"),
   royaltiesEarned: integer("royalties_earned").default(0),
   totalStreams: integer("total_streams").default(0),
-  duration: integer("duration"), // in seconds
+  duration: integer("duration").default(0), // in seconds - fixed with default
   isPublic: boolean("is_public").default(false),
   collaborators: jsonb("collaborators").default([]),
   tags: jsonb("tags").default([]),
+  metadata: jsonb("metadata").default('{}'), // Added for production features
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
