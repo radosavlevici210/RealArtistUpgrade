@@ -125,11 +125,20 @@ app.get('/health', (req, res) => {
   const port = parseInt(process.env.PORT || '5000', 10);
   const host = '0.0.0.0';
   
-  server.listen({
-    port,
-    host,
-    reusePort: true,
-  }, () => {
+  // Handle server startup errors
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${port} is already in use. Trying to restart...`);
+      setTimeout(() => {
+        server.close();
+        server.listen(port, host);
+      }, 1000);
+    } else {
+      console.error('❌ Server error:', err);
+    }
+  });
+  
+  server.listen(port, host, () => {
     console.log(`🌟 RealArtist AI Platform running on ${host}:${port}`);
     console.log(`📊 Environment: ${process.env.NODE_ENV || 'production'}`);
     console.log(`🔗 External URL: ${process.env.APP_URL || `http://${host}:${port}`}`);
