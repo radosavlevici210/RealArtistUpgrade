@@ -15,7 +15,7 @@ localPort = 5000
 externalPort = 80
 
 [workflows]
-runButton = "Project"
+runButton = "Start Production App"
 
 [[workflows.workflow]]
 name = "Project"
@@ -34,3 +34,20 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Start Production App"
+author = 43985948
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run db:push"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run db:seed"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
