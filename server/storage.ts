@@ -1,4 +1,6 @@
 import { users, projects, aiArtists, userStats, type User, type InsertUser, type Project, type InsertProject, type AiArtist, type InsertAiArtist, type UserStats, type InsertUserStats } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -292,4 +294,86 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async getProject(id: number): Promise<Project | undefined> {
+    const [project] = await db.select().from(projects).where(eq(projects.id, id));
+    return project || undefined;
+  }
+
+  async getProjectsByUserId(userId: number): Promise<Project[]> {
+    return await db.select().from(projects).where(eq(projects.userId, userId));
+  }
+
+  async createProject(insertProject: InsertProject): Promise<Project> {
+    const [project] = await db
+      .insert(projects)
+      .values(insertProject)
+      .returning();
+    return project;
+  }
+
+  async updateProject(id: number, updates: Partial<Project>): Promise<Project | undefined> {
+    const [project] = await db
+      .update(projects)
+      .set(updates)
+      .where(eq(projects.id, id))
+      .returning();
+    return project || undefined;
+  }
+
+  async deleteProject(id: number): Promise<boolean> {
+    const result = await db.delete(projects).where(eq(projects.id, id));
+    return (result.rowCount || 0) > 0;
+  }
+
+  async getAiArtists(): Promise<AiArtist[]> {
+    return await db.select().from(aiArtists);
+  }
+
+  async getAiArtist(id: number): Promise<AiArtist | undefined> {
+    const [artist] = await db.select().from(aiArtists).where(eq(aiArtists.id, id));
+    return artist || undefined;
+  }
+
+  async createAiArtist(insertAiArtist: InsertAiArtist): Promise<AiArtist> {
+    const [artist] = await db
+      .insert(aiArtists)
+      .values(insertAiArtist)
+      .returning();
+    return artist;
+  }
+
+  async getUserStats(userId: number): Promise<UserStats | undefined> {
+    const [stats] = await db.select().from(userStats).where(eq(userStats.userId, userId));
+    return stats || undefined;
+  }
+
+  async updateUserStats(userId: number, updates: Partial<UserStats>): Promise<UserStats | undefined> {
+    const [stats] = await db
+      .update(userStats)
+      .set(updates)
+      .where(eq(userStats.userId, userId))
+      .returning();
+    return stats || undefined;
+  }
+}
+
+export const storage = new DatabaseStorage();
