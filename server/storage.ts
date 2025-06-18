@@ -97,6 +97,10 @@ export class MemStorage implements IStorage {
       totalStreams: 12400,
       royaltiesEarned: 284700, // $2,847.00 in cents
       aiCreditsRemaining: 156,
+      subscriptionPlan: "professional",
+      accountStatus: "active",
+      lastLoginAt: new Date(),
+      totalSpent: 990000, // $9,900.00 in cents
     };
     this.userStats.set(1, defaultStats);
 
@@ -114,6 +118,13 @@ export class MemStorage implements IStorage {
         status: "complete",
         currentStep: 6,
         metadata: {},
+        audioUrl: "https://example.com/midnight-dreams.mp3",
+        videoUrl: "https://example.com/midnight-dreams.mp4",
+        certificateUrl: "https://example.com/midnight-dreams-cert.pdf",
+        bundleUrl: "https://example.com/midnight-dreams-bundle.zip",
+        watermarkId: "WM-2025-001-MIDNIGHT",
+        royaltiesEarned: 45670,
+        totalStreams: 3420,
         createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
         updatedAt: new Date(Date.now() - 3 * 60 * 60 * 1000),
       },
@@ -129,6 +140,13 @@ export class MemStorage implements IStorage {
         status: "processing",
         currentStep: 3,
         metadata: {},
+        audioUrl: null,
+        videoUrl: null,
+        certificateUrl: null,
+        bundleUrl: null,
+        watermarkId: null,
+        royaltiesEarned: 0,
+        totalStreams: 0,
         createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
         updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
       },
@@ -144,6 +162,13 @@ export class MemStorage implements IStorage {
         status: "complete",
         currentStep: 6,
         metadata: {},
+        audioUrl: "https://example.com/heartbreak-anthem.mp3",
+        videoUrl: "https://example.com/heartbreak-anthem.mp4",
+        certificateUrl: "https://example.com/heartbreak-anthem-cert.pdf",
+        bundleUrl: "https://example.com/heartbreak-anthem-bundle.zip",
+        watermarkId: "WM-2025-003-HEARTBREAK",
+        royaltiesEarned: 78940,
+        totalStreams: 5890,
         createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
         updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
       },
@@ -165,6 +190,8 @@ export class MemStorage implements IStorage {
     const user: User = {
       ...insertUser,
       id,
+      profileImage: insertUser.profileImage || null,
+      accountType: insertUser.accountType || "pro",
       createdAt: new Date(),
     };
     this.users.set(id, user);
@@ -187,6 +214,15 @@ export class MemStorage implements IStorage {
     const project: Project = {
       ...insertProject,
       id,
+      status: insertProject.status || "draft",
+      metadata: insertProject.metadata || {},
+      audioUrl: null,
+      videoUrl: null,
+      certificateUrl: null,
+      bundleUrl: null,
+      watermarkId: null,
+      royaltiesEarned: 0,
+      totalStreams: 0,
       createdAt: now,
       updatedAt: now,
     };
@@ -224,6 +260,9 @@ export class MemStorage implements IStorage {
     const artist: AiArtist = {
       ...insertAiArtist,
       id,
+      description: insertAiArtist.description || null,
+      avatarUrl: insertAiArtist.avatarUrl || null,
+      isActive: insertAiArtist.isActive !== undefined ? insertAiArtist.isActive : true,
     };
     this.aiArtists.set(id, artist);
     return artist;
