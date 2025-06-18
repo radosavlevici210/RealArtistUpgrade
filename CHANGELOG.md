@@ -100,7 +100,7 @@ All notable changes to the RealArtist AI Platform will be documented in this fil
 - **Quality Score**: 9.2/10 professional rating
 
 ### 📞 Support & Contact
-- **Technical Support**: admin@root-cloud.com
+- **Technical Support**: admin@root-cloud.com radosavlevici210@icloud.com
 - **Response Time**: 24 hours standard, 4 hours enterprise
 - **Documentation**: Complete API and user guides
 - **Community**: GitHub repository and issue tracking
