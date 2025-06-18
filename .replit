@@ -7,15 +7,15 @@ channel = "stable-24_05"
 
 [deployment]
 deploymentTarget = "autoscale"
-build = ["npm", "run", "build"]
-run = ["npm", "run", "start"]
+build = ["sh", "-c", "npm install && npm run build"]
+run = ["sh", "-c", "npm start"]
 
 [[ports]]
 localPort = 5000
 externalPort = 80
 
 [workflows]
-runButton = "Production Deploy"
+runButton = "Production Server"
 
 [[workflows.workflow]]
 name = "Project"
@@ -90,6 +90,27 @@ args = "npm run dev"
 name = "Production Deploy"
 author = 43985948
 mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run db:push"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run db:seed"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Production Server"
+author = 43985948
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install --production=false"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
