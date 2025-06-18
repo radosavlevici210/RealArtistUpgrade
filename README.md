@@ -14,6 +14,7 @@ RealArtist AI is the world's most advanced AI-powered music production platform.
 **Platform:** Replit Enterprise  
 **Contact:** admin@root-cloud.com  
 **GitHub:** github.com/radosavlevici210
+Copyright (c) 2025 ervin remus radosavlevici. All Rights Reserved.
 
 ## 🚀 Core Features
 

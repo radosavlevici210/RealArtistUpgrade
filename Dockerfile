@@ -1,6 +1,6 @@
 # RealArtist AI Production Dockerfile
 FROM node:20-alpine AS base
-
+Copyright (c) 2025 ervin remus radosavlevici. All Rights Reserved.
 # Install dependencies only when needed
 FROM base AS deps
 WORKDIR /app

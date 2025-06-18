@@ -1,4 +1,4 @@
-
+Copyright (c) 2025 ervin remus radosavlevici. All Rights Reserved.
 import { db } from "./db";
 import { users, projects, aiArtists, userStats, royaltyTracking, securityLogs, aiModels } from "@shared/schema";
 

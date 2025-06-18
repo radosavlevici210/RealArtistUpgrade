@@ -1,7 +1,7 @@
 # RealArtist AI - Production Deployment Guide
-
+Copyrt
 ## 🚀 Production Deployment
-
+## Copyright (c) 2025 Ervin Remus Radosavlevici. All Rights Reserved.
 ### Prerequisites
 - Node.js 20+
 - PostgreSQL 16+
@@ -27,12 +27,6 @@ NODE_ENV=production
 PORT=5000
 APP_URL=https://your-domain.com
 SECRET_KEY=your_super_secret_key_here
-
-# Security
-RATE_LIMIT_WINDOW_MS=900000
-RATE_LIMIT_MAX_REQUESTS=100
-CORS_ORIGIN=https://your-domain.com
-TRUST_PROXY=true
 
 # AI Services (Add your API keys)
 OPENAI_API_KEY=sk-your-openai-key

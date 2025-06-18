@@ -3,7 +3,7 @@
 ## Overview
 
 RealArtist AI is a full-stack web application for AI-powered music creation. The platform allows users to input lyrics and generate complete songs with AI vocals, instrumentals, and potentially music videos. Built with modern web technologies, it features a React frontend, Express backend, and PostgreSQL database with Drizzle ORM.
-
+Copyright (c) 2025 ervin remus radosavlevici. All Rights Reserved.
 ## System Architecture
 
 ### Frontend Architecture
