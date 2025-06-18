@@ -117,7 +117,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/ai/generate-script", async (req, res) => {
     try {
       const { lyrics, mood, genre } = req.body;
-      
+
       // Simulate AI processing delay
       await new Promise(resolve => setTimeout(resolve, 2000));
 
@@ -149,7 +149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/ai/generate-voice", async (req, res) => {
     try {
       const { script, artistVoice } = req.body;
-      
+
       // Simulate AI processing delay
       await new Promise(resolve => setTimeout(resolve, 3000));
 
@@ -172,7 +172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/ai/generate-instrumental", async (req, res) => {
     try {
       const { mood, genre, tempo, duration } = req.body;
-      
+
       // Simulate AI processing delay
       await new Promise(resolve => setTimeout(resolve, 2500));
 

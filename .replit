@@ -15,7 +15,7 @@ localPort = 5000
 externalPort = 80
 
 [workflows]
-runButton = "Launch Production"
+runButton = "Production Ready"
 
 [[workflows.workflow]]
 name = "Project"
@@ -54,6 +54,23 @@ args = "npm run dev"
 
 [[workflows.workflow]]
 name = "Launch Production"
+author = 43985948
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run db:push"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run db:seed"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Production Ready"
 author = 43985948
 mode = "sequential"
 

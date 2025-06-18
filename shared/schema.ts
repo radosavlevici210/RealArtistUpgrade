@@ -14,16 +14,15 @@ export const users = pgTable("users", {
 
 export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: integer("user_id").references(() => users.id),
   title: text("title").notNull(),
-  lyrics: text("lyrics"),
-  mood: text("mood"),
-  genre: text("genre"),
+  lyrics: text("lyrics").notNull(),
+  mood: text("mood").notNull(),
+  genre: text("genre").notNull(),
   tempo: integer("tempo").default(120),
   artistVoice: text("artist_voice"),
-  status: text("status").notNull().default("draft"), // draft, processing, complete
+  status: text("status").default("draft"),
   currentStep: integer("current_step").default(1),
-  metadata: jsonb("metadata").default('{}'),
   audioUrl: text("audio_url"),
   videoUrl: text("video_url"),
   certificateUrl: text("certificate_url"),
@@ -31,8 +30,12 @@ export const projects = pgTable("projects", {
   watermarkId: text("watermark_id"),
   royaltiesEarned: integer("royalties_earned").default(0),
   totalStreams: integer("total_streams").default(0),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  duration: integer("duration"), // in seconds
+  isPublic: boolean("is_public").default(false),
+  collaborators: jsonb("collaborators").default([]),
+  tags: jsonb("tags").default([]),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const aiArtists = pgTable("ai_artists", {
