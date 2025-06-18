@@ -1,11 +1,23 @@
+
 import { db } from "./db";
-import { users, projects, aiArtists, userStats, royaltyTracking, securityLogs, contentProtection, collaborations, aiModels } from "@shared/schema";
+import { users, projects, aiArtists, userStats, royaltyTracking, securityLogs, aiModels } from "@shared/schema";
 
 async function seed() {
-  console.log("🌱 Seeding production database...");
+  console.log("🌱 Starting production database seeding...");
 
   try {
-    // Insert default user
+    // Clear existing data first
+    console.log("🧹 Cleaning existing data...");
+    await db.delete(royaltyTracking);
+    await db.delete(securityLogs);
+    await db.delete(userStats);
+    await db.delete(projects);
+    await db.delete(aiArtists);
+    await db.delete(aiModels);
+    await db.delete(users);
+
+    // Insert production user
+    console.log("👤 Creating production user...");
     const [user] = await db
       .insert(users)
       .values({
@@ -15,12 +27,13 @@ async function seed() {
         accountType: "pro",
         profileImage: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face",
       })
-      .onConflictDoNothing()
       .returning();
 
-    const userId = user?.id || 1;
+    const userId = user.id;
+    console.log(`✅ User created with ID: ${userId}`);
 
-    // Insert AI artists with complete data
+    // Insert AI artists
+    console.log("🎤 Creating AI artists...");
     const aiArtistData = [
       {
         name: "Luna Vox",
@@ -59,109 +72,27 @@ async function seed() {
       },
     ];
 
-    await db.insert(aiArtists).values(aiArtistData).onConflictDoNothing();
+    await db.insert(aiArtists).values(aiArtistData);
+    console.log("✅ AI artists created");
 
-    // Insert comprehensive user stats
+    // Insert user stats
+    console.log("📊 Creating user statistics...");
     await db
       .insert(userStats)
       .values({
         userId: userId,
         songsCreated: 47,
         totalStreams: 2847392,
-        royaltiesEarned: 1284753, // $12,847.53 in cents
+        royaltiesEarned: 1284753,
         aiCreditsRemaining: 850,
         subscriptionPlan: "professional",
         accountStatus: "active",
-        totalSpent: 9900, // $99.00 in cents
-      })
-      .onConflictDoNothing();
+        totalSpent: 9900,
+      });
+    console.log("✅ User statistics created");
 
-    // Insert production-ready sample projects
-    const projectsData = [
-      {
-        userId: userId,
-        title: "Midnight Dreams",
-        lyrics: "Walking through the city lights at midnight\nDreaming of tomorrow's bright\nStars above us shining so bright\nEverything feels so right\n\nIn this moment time stands still\nEvery heartbeat I can feel\nDancing shadows on the wall\nMidnight dreams encompass all",
-        mood: "dreamy",
-        genre: "pop",
-        tempo: 120,
-        artistVoice: "Luna Vox",
-        status: "complete",
-        currentStep: 6,
-        duration: 240,
-        audioUrl: "/api/audio/midnight-dreams.mp3",
-        videoUrl: "/api/video/midnight-dreams.mp4",
-        certificateUrl: "/api/certificates/midnight-dreams.pdf",
-        bundleUrl: "/api/bundles/midnight-dreams.zip",
-        watermarkId: "WM_MD_2025_001",
-        royaltiesEarned: 2847,
-        totalStreams: 28473,
-        isPublic: true,
-        metadata: { quality: "studio", protection: "quantum" },
-      },
-      {
-        userId: userId,
-        title: "Electric Pulse",
-        lyrics: "Feel the beat inside your soul\nLet the music take control\nDance until you lose it all\nAnswer when the night calls\n\nElectric pulse running through my veins\nNothing left but music in my brain\nLights are flashing colors so bright\nWe'll be dancing all through the night",
-        mood: "energetic", 
-        genre: "electronic",
-        tempo: 128,
-        artistVoice: "Neon Pulse",
-        status: "complete",
-        currentStep: 6,
-        duration: 200,
-        audioUrl: "/api/audio/electric-pulse.mp3",
-        videoUrl: "/api/video/electric-pulse.mp4", 
-        certificateUrl: "/api/certificates/electric-pulse.pdf",
-        bundleUrl: "/api/bundles/electric-pulse.zip",
-        watermarkId: "WM_EP_2025_002",
-        royaltiesEarned: 1823,
-        totalStreams: 18230,
-        isPublic: true,
-        metadata: { quality: "studio", protection: "quantum" },
-      },
-      {
-        userId: userId,
-        title: "Ocean Waves",
-        lyrics: "Listen to the ocean calling\nWaves are gently falling\nPeaceful moments washing over me\nIn this place I'm finally free\n\nSalty air and endless blue\nEvery wave brings something new\nIn the rhythm of the sea\nI find who I'm meant to be",
-        mood: "peaceful",
-        genre: "ambient",
-        tempo: 85,
-        artistVoice: "Ocean Voice",
-        status: "complete",
-        currentStep: 6,
-        duration: 280,
-        audioUrl: "/api/audio/ocean-waves.mp3",
-        videoUrl: "/api/video/ocean-waves.mp4",
-        certificateUrl: "/api/certificates/ocean-waves.pdf", 
-        bundleUrl: "/api/bundles/ocean-waves.zip",
-        watermarkId: "WM_OW_2025_003",
-        royaltiesEarned: 956,
-        totalStreams: 9560,
-        isPublic: false,
-        metadata: { quality: "studio", protection: "quantum" },
-      },
-      {
-        userId: userId,
-        title: "Future Beats",
-        lyrics: "Welcome to the future sound\nBeats that make you move around\nDigital dreams come alive\nIn this world we learn to thrive\n\nSynthetic melodies fill the air\nNeon lights are everywhere\nDancing through tomorrow's night\nEverything feels so right",
-        mood: "futuristic",
-        genre: "synthwave", 
-        tempo: 140,
-        artistVoice: "Cyber Phoenix",
-        status: "in_progress",
-        currentStep: 4,
-        duration: 220,
-        royaltiesEarned: 0,
-        totalStreams: 0,
-        isPublic: false,
-        metadata: { quality: "studio", protection: "quantum" },
-      },
-    ];
-
-    await db.insert(projects).values(projectsData).onConflictDoNothing();
-
-    // Insert AI models for production features
+    // Insert AI models
+    console.log("🤖 Creating AI models...");
     const aiModelsData = [
       {
         name: "VocalCore Pro",
@@ -185,29 +116,127 @@ async function seed() {
       },
     ];
 
-    await db.insert(aiModels).values(aiModelsData).onConflictDoNothing();
+    await db.insert(aiModels).values(aiModelsData);
+    console.log("✅ AI models created");
 
-    // Insert sample royalty tracking data
-    const royaltyData = [
+    // Insert sample projects
+    console.log("🎵 Creating sample projects...");
+    const projectsData = [
       {
-        projectId: 1,
-        platform: "spotify",
-        streamCount: 15420,
-        revenue: 1542, // $15.42 in cents
-        date: new Date('2025-01-15'),
+        userId: userId,
+        title: "Midnight Dreams",
+        lyrics: "Walking through the city lights at midnight\nDreaming of tomorrow's bright\nStars above us shining so bright\nEverything feels so right\n\nIn this moment time stands still\nEvery heartbeat I can feel\nDancing shadows on the wall\nMidnight dreams encompass all",
+        mood: "dreamy",
+        genre: "pop",
+        tempo: 120,
+        duration: 240,
+        artistVoice: "Luna Vox",
+        status: "complete",
+        currentStep: 6,
+        audioUrl: "/api/audio/midnight-dreams.mp3",
+        videoUrl: "/api/video/midnight-dreams.mp4",
+        certificateUrl: "/api/certificates/midnight-dreams.pdf",
+        bundleUrl: "/api/bundles/midnight-dreams.zip",
+        watermarkId: "WM_MD_2025_001",
+        royaltiesEarned: 2847,
+        totalStreams: 28473,
+        isPublic: true,
+        metadata: { quality: "studio", protection: "quantum" },
       },
       {
-        projectId: 1,
-        platform: "apple_music",
-        streamCount: 8930,
-        revenue: 1250, // $12.50 in cents
-        date: new Date('2025-01-15'),
+        userId: userId,
+        title: "Electric Pulse",
+        lyrics: "Feel the beat inside your soul\nLet the music take control\nDance until you lose it all\nAnswer when the night calls\n\nElectric pulse running through my veins\nNothing left but music in my brain\nLights are flashing colors so bright\nWe'll be dancing all through the night",
+        mood: "energetic", 
+        genre: "electronic",
+        tempo: 128,
+        duration: 200,
+        artistVoice: "Neon Pulse",
+        status: "complete",
+        currentStep: 6,
+        audioUrl: "/api/audio/electric-pulse.mp3",
+        videoUrl: "/api/video/electric-pulse.mp4", 
+        certificateUrl: "/api/certificates/electric-pulse.pdf",
+        bundleUrl: "/api/bundles/electric-pulse.zip",
+        watermarkId: "WM_EP_2025_002",
+        royaltiesEarned: 1823,
+        totalStreams: 18230,
+        isPublic: true,
+        metadata: { quality: "studio", protection: "quantum" },
+      },
+      {
+        userId: userId,
+        title: "Ocean Waves",
+        lyrics: "Listen to the ocean calling\nWaves are gently falling\nPeaceful moments washing over me\nIn this place I'm finally free\n\nSalty air and endless blue\nEvery wave brings something new\nIn the rhythm of the sea\nI find who I'm meant to be",
+        mood: "peaceful",
+        genre: "ambient",
+        tempo: 85,
+        duration: 280,
+        artistVoice: "Luna Vox",
+        status: "complete",
+        currentStep: 6,
+        audioUrl: "/api/audio/ocean-waves.mp3",
+        videoUrl: "/api/video/ocean-waves.mp4",
+        certificateUrl: "/api/certificates/ocean-waves.pdf", 
+        bundleUrl: "/api/bundles/ocean-waves.zip",
+        watermarkId: "WM_OW_2025_003",
+        royaltiesEarned: 956,
+        totalStreams: 9560,
+        isPublic: false,
+        metadata: { quality: "studio", protection: "quantum" },
+      },
+      {
+        userId: userId,
+        title: "Future Beats",
+        lyrics: "Welcome to the future sound\nBeats that make you move around\nDigital dreams come alive\nIn this world we learn to thrive\n\nSynthetic melodies fill the air\nNeon lights are everywhere\nDancing through tomorrow's night\nEverything feels so right",
+        mood: "futuristic",
+        genre: "synthwave", 
+        tempo: 140,
+        duration: 220,
+        artistVoice: "Neon Pulse",
+        status: "in_progress",
+        currentStep: 4,
+        royaltiesEarned: 0,
+        totalStreams: 0,
+        isPublic: false,
+        metadata: { quality: "studio", protection: "quantum" },
       },
     ];
 
-    await db.insert(royaltyTracking).values(royaltyData).onConflictDoNothing();
+    const insertedProjects = await db.insert(projects).values(projectsData).returning();
+    console.log("✅ Sample projects created");
 
-    // Insert sample security logs
+    // Insert royalty tracking data
+    console.log("💰 Creating royalty tracking data...");
+    const royaltyData = [
+      {
+        projectId: insertedProjects[0].id,
+        platform: "spotify",
+        streamCount: 15420,
+        revenue: 1542,
+        date: new Date('2025-01-15'),
+      },
+      {
+        projectId: insertedProjects[0].id,
+        platform: "apple_music",
+        streamCount: 8930,
+        revenue: 1250,
+        date: new Date('2025-01-15'),
+      },
+      {
+        projectId: insertedProjects[1].id,
+        platform: "youtube_music",
+        streamCount: 12340,
+        revenue: 890,
+        date: new Date('2025-01-14'),
+      },
+    ];
+
+    await db.insert(royaltyTracking).values(royaltyData);
+    console.log("✅ Royalty tracking data created");
+
+    // Insert security logs
+    console.log("🔒 Creating security logs...");
     const securityData = [
       {
         userId: userId,
@@ -217,25 +246,38 @@ async function seed() {
         deviceFingerprint: "fp_12345abcde",
         metadata: { loginMethod: "password", success: true },
       },
+      {
+        userId: userId,
+        action: "project_created",
+        ipAddress: "192.168.1.100",
+        userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        deviceFingerprint: "fp_12345abcde",
+        metadata: { projectTitle: "Midnight Dreams", aiArtist: "Luna Vox" },
+      },
     ];
 
-    await db.insert(securityLogs).values(securityData).onConflictDoNothing();
+    await db.insert(securityLogs).values(securityData);
+    console.log("✅ Security logs created");
 
-    console.log("✅ Production database seeded successfully!");
-    console.log("📊 Created:");
-    console.log("   - 1 User account");
-    console.log("   - 5 AI Artists");
-    console.log("   - 3 Sample projects");
-    console.log("   - 2 AI models");
-    console.log("   - User statistics");
-    console.log("   - Royalty tracking data");
-    console.log("   - Security logs");
-    console.log("🚀 Platform ready for production!");
+    console.log("\n🎉 Production database seeded successfully!");
+    console.log("📈 Platform Statistics:");
+    console.log("   👤 Users: 1");
+    console.log("   🎤 AI Artists: 5");
+    console.log("   🎵 Projects: 4");
+    console.log("   🤖 AI Models: 2");
+    console.log("   📊 User Stats: Complete");
+    console.log("   💰 Royalty Records: 3");
+    console.log("   🔒 Security Logs: 2");
+    console.log("🚀 RealArtist AI Platform ready for production!");
 
   } catch (error) {
     console.error("❌ Error seeding database:", error);
+    console.error("Stack trace:", error.stack);
     throw error;
   }
 }
 
-seed().catch(console.error);
+seed().catch((error) => {
+  console.error("❌ Seeding failed:", error);
+  process.exit(1);
+});
