@@ -15,7 +15,7 @@ localPort = 5000
 externalPort = 80
 
 [workflows]
-runButton = "Production Launch"
+runButton = "Production Ready"
 
 [[workflows.workflow]]
 name = "Project"
@@ -76,7 +76,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm install --production=false"
+args = "npm install"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
@@ -136,6 +136,23 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run db:push"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run db:seed"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Start Production"
+author = 43985948
+mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"

@@ -424,11 +424,11 @@ export class DatabaseStorage implements IStorage {
 
   async healthCheck(): Promise<boolean> {
     try {
-      // Simple query to check database connectivity
       await db.select().from(users).limit(1);
+      console.log("✅ Database health check passed");
       return true;
     } catch (error) {
-      console.error('Database health check failed:', error);
+      console.error("❌ Database health check failed:", error);
       return false;
     }
   }

@@ -137,7 +137,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Split lyrics intelligently
       const lyricsLines = lyrics.split('\n').filter(line => line.trim());
       const linesPerSection = Math.ceil(lyricsLines.length / 6);
-      
+
       // Generate production-quality script
       const script = {
         structure: [
@@ -228,7 +228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Generate unique audio URL for production
       const audioId = `voice_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-      
+
       // Production AI-generated voice response
       const voiceResult = {
         audioUrl: `https://storage.realartist.ai/voices/${audioId}.wav`,
@@ -277,7 +277,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Generate unique instrumental ID
       const instrumentalId = `inst_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-      
+
       // Production AI-generated instrumental
       const instrumental = {
         audioUrl: `https://storage.realartist.ai/instrumentals/${instrumentalId}.wav`,
@@ -352,7 +352,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Check database connection
       const dbHealth = await storage.healthCheck();
-      
+
       res.json({ 
         status: "healthy", 
         timestamp: new Date().toISOString(),
@@ -407,7 +407,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const stats = await storage.getUserStats(1);
       const projects = await storage.getProjectsByUserId(1);
       const analytics = await storage.getProjectAnalytics(1);
-      
+
       res.json({
         timestamp: new Date().toISOString(),
         server: {
@@ -431,6 +431,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         error: "Monitoring failed",
         timestamp: new Date().toISOString()
+      });
+    }
+  });
+
+  // Health check endpoint
+  app.get("/health", async (req, res) => {
+    try {
+      const healthStatus = await storage.healthCheck();
+      res.json({ 
+        status: healthStatus ? "ok" : "degraded",
+        timestamp: new Date().toISOString(),
+        version: "2025.1.0",
+        environment: process.env.NODE_ENV || 'development',
+        database: healthStatus ? "connected" : "disconnected"
+      });
+    } catch (error) {
+      res.status(503).json({
+        status: "error",
+        timestamp: new Date().toISOString(),
+        error: "Health check failed"
       });
     }
   });

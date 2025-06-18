@@ -6,15 +6,24 @@ async function seed() {
   console.log("🌱 Starting production database seeding...");
 
   try {
-    // Clear existing data first
-    console.log("🧹 Cleaning existing data...");
-    await db.delete(royaltyTracking);
-    await db.delete(securityLogs);
-    await db.delete(userStats);
-    await db.delete(projects);
-    await db.delete(aiArtists);
-    await db.delete(aiModels);
-    await db.delete(users);
+    // Check if data already exists
+    const existingUsers = await db.select().from(users).limit(1);
+    if (existingUsers.length > 0 && process.env.NODE_ENV === 'production') {
+      console.log("✅ Production data already exists, skipping seed");
+      return;
+    }
+
+    // Clear existing data only in development
+    if (process.env.NODE_ENV !== 'production') {
+      console.log("🧹 Cleaning existing data...");
+      await db.delete(royaltyTracking);
+      await db.delete(securityLogs);
+      await db.delete(userStats);
+      await db.delete(projects);
+      await db.delete(aiArtists);
+      await db.delete(aiModels);
+      await db.delete(users);
+    }
 
     // Insert production user
     console.log("👤 Creating production user...");

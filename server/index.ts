@@ -1,7 +1,7 @@
-
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import path from "path";
 
 const app = express();
 
@@ -15,17 +15,17 @@ app.use((req, res, next) => {
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
+
   // Production CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
-  
+
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
-  
+
   next();
 });
 
@@ -44,9 +44,9 @@ app.use((req, res, next) => {
   res.on("finish", () => {
     const duration = Date.now() - start;
     const logLine = `[${new Date().toISOString()}] ${req.method} ${path} ${res.statusCode} - ${duration}ms - ${req.ip}`;
-    
+
     console.log(logLine);
-    
+
     if (path.startsWith("/api")) {
       let detailedLog = `API: ${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse && res.statusCode >= 400) {
@@ -79,7 +79,7 @@ app.get('/health', (req, res) => {
     app.use((err: any, req: Request, res: Response, next: NextFunction) => {
       const status = err.status || err.statusCode || 500;
       const message = err.message || "Internal Server Error";
-      
+
       console.error(`[ERROR] ${new Date().toISOString()} - ${req.method} ${req.path}:`, {
         error: message,
         stack: err.stack,
@@ -97,7 +97,7 @@ app.get('/health', (req, res) => {
 
     // Setup frontend serving
     const isProduction = process.env.NODE_ENV === 'production';
-    
+
     if (isProduction) {
       console.log('🚀 Starting in PRODUCTION mode');
       serveStatic(app);
@@ -109,7 +109,7 @@ app.get('/health', (req, res) => {
     // Production-ready server configuration
     const port = parseInt(process.env.PORT || '5000', 10);
     const host = '0.0.0.0';
-    
+
     // Handle server startup errors
     server.on('error', (err: any) => {
       if (err.code === 'EADDRINUSE') {
@@ -123,7 +123,7 @@ app.get('/health', (req, res) => {
         process.exit(1);
       }
     });
-    
+
     server.listen(port, host, () => {
       console.log(`\n🌟 RealArtist AI Platform LIVE!`);
       console.log(`🌐 Server: http://${host}:${port}`);
