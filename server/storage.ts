@@ -212,9 +212,16 @@ export class MemStorage implements IStorage {
     const id = this.currentProjectId++;
     const now = new Date();
     const project: Project = {
-      ...insertProject,
       id,
+      userId: insertProject.userId,
+      title: insertProject.title,
+      lyrics: insertProject.lyrics || null,
+      mood: insertProject.mood || null,
+      genre: insertProject.genre || null,
+      tempo: insertProject.tempo || null,
+      artistVoice: insertProject.artistVoice || null,
       status: insertProject.status || "draft",
+      currentStep: insertProject.currentStep || null,
       metadata: insertProject.metadata || {},
       audioUrl: null,
       videoUrl: null,
