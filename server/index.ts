@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { config } from "./config";
 import path from "path";
 
 const app = express();
@@ -109,8 +110,8 @@ app.get('/health', (req, res) => {
       await setupVite(app, server);
     }
 
-    // Production-ready server configuration
-    const port = parseInt(process.env.PORT || '5000', 10);
+    // Production-ready server configuration using validated config
+    const port = config.PORT;
     const host = '0.0.0.0';
 
     // Handle server startup errors
