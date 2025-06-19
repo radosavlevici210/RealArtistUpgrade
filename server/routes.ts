@@ -1,4 +1,4 @@
-Copyright (c) 2025 ervin remus radosavlevici. All Rights Reserved.
+// Copyright (c) 2025 ervin remus radosavlevici. All Rights Reserved.
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
