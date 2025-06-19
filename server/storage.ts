@@ -424,11 +424,12 @@ export class DatabaseStorage implements IStorage {
 
   async healthCheck(): Promise<boolean> {
     try {
-      await db.select().from(users).limit(1);
-      console.log("✅ Database health check passed");
+      const result = await db.select().from(users).limit(1);
+      console.log('[DB] Health check passed:', new Date().toISOString());
       return true;
     } catch (error) {
-      console.error("❌ Database health check failed:", error);
+      console.error('[DB] Health check failed:', error);
+      console.error('[DB] Connection string status:', db ? 'initialized' : 'not initialized');
       return false;
     }
   }
