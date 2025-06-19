@@ -36,8 +36,17 @@ export async function setupVite(app: Express, server: Server) {
         process.exit(1);
       },
     },
-    server: serverOptions,
+    server: { 
+      middlewareMode: true,
+      hmr: {
+        port: 24678,
+        host: '0.0.0.0'
+      }
+    },
     appType: "custom",
+    optimizeDeps: {
+      include: ["react", "react-dom", "@radix-ui/react-tooltip", "@radix-ui/react-dialog"],
+    },
   });
 
   app.use(vite.middlewares);

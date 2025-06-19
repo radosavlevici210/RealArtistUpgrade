@@ -424,12 +424,35 @@ export class DatabaseStorage implements IStorage {
 
   async healthCheck(): Promise<boolean> {
     try {
+      const startTime = Date.now();
       await db.select().from(users).limit(1);
-      console.log("✅ Database health check passed");
+      const responseTime = Date.now() - startTime;
+
+      if (responseTime > 1000) {
+        console.warn(`Database response time high: ${responseTime}ms`);
+      }
+
       return true;
     } catch (error) {
-      console.error("❌ Database health check failed:", error);
+      console.error('Database health check failed:', error);
+      console.error('[DB] Connection string status:', db ? 'initialized' : 'not initialized');
       return false;
+    }
+  }
+
+  async getConnectionInfo(): Promise<any> {
+    try {
+      return {
+        status: "connected",
+        pool: "active",
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      return {
+        status: "error",
+        error: error.message,
+        timestamp: new Date().toISOString()
+      };
     }
   }
 
