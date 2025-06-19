@@ -33,6 +33,24 @@ app.use((req, res, next) => {
   next();
 });
 
+// Global error handler for production
+app.use((error: any, req: any, res: any, next: any) => {
+  console.error('Unhandled application error:', {
+    error: error.message,
+    stack: error.stack,
+    url: req.url,
+    method: req.method,
+    timestamp: new Date().toISOString(),
+    ip: req.ip
+  });
+
+  res.status(500).json({
+    error: "Internal server error",
+    timestamp: new Date().toISOString(),
+    requestId: Math.random().toString(36).substring(7)
+  });
+});
+
 // Request logging for production monitoring
 app.use((req, res, next) => {
   const start = Date.now();

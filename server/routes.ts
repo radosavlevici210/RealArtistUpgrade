@@ -436,6 +436,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Performance monitoring endpoint - Production Ready
+  app.get("/api/performance", async (req, res) => {
+    try {
+      const stats = {
+        timestamp: new Date().toISOString(),
+        server: {
+          uptime: Math.floor(process.uptime()),
+          memory: {
+            used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+            total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+            external: Math.round(process.memoryUsage().external / 1024 / 1024)
+          },
+          cpu: process.cpuUsage(),
+          version: "2025.1.0",
+          platform: process.platform,
+          nodeVersion: process.version
+        },
+        database: {
+          status: await storage.healthCheck() ? "connected" : "disconnected",
+          connectionInfo: await storage.getConnectionInfo()
+        },
+        platform: {
+          name: "RealArtist AI",
+          owner: "Ervin Remus Radosavlevici", 
+          version: "2025.1.0",
+          environment: process.env.NODE_ENV || "production"
+        }
+      };
+
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({
+        error: "Performance monitoring failed",
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Production monitoring endpoint
   app.get("/api/monitor", async (req, res) => {
     try {
