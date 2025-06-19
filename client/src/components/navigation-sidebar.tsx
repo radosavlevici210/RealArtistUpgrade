@@ -8,6 +8,7 @@ const navigationItems = [
   { href: "/analytics", icon: "fas fa-chart-line", label: "Analytics" },
   { href: "/royalty", icon: "fas fa-handshake", label: "Royalty Dashboard" },
   { href: "/security", icon: "fas fa-shield-halved", label: "Security Center" },
+  { href: "/elite", icon: "fas fa-rocket", label: "Elite Features" },
 ];
 
 export function NavigationSidebar() {
